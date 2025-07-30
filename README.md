@@ -98,3 +98,4 @@ This library is licensed under the MIT-0 License. See the LICENSE file.
 
 1. Tejal Patel (Sr. Delivery Consultant - AWS Professional Services)
 2. Janakiraman Shanmugam (Sr. Delivery Consultant - AWS Professional Services)
+3. Prabhakaran Thatchinamoorthy (Software Engineer II - EMR on EKS Service Team)
