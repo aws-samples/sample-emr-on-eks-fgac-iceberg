@@ -1,0 +1,301 @@
+===========================================================
+  Create local database......
+===========================================================
+consumer_account_setup/consumer_emr_on_eks_setup.sh: line 41: [: us-west-2: integer expression expected
+setup data bucket in another region......
+{
+    "Location": "http://blog-emr-eks-fgac-test-123456789012-us-west-2-dev.s3.amazonaws.com/"
+}
+=======================================================================
+  Create resource link to shared patients table in local database......
+=======================================================================
+=====================================================================
+  Create resource link to shared claims table in local database......
+=====================================================================
+===================================================
+  Create EMR on EKS Query Execution IAM Role ......
+===================================================
+{
+    "Policy": {
+        "PolicyName": "emr_on_eks_fgac_query_execution_role-policy",
+        "PolicyId": "ANPA6CCCRW2HVSP3SRBOS",
+        "Arn": "arn:aws:iam::123456789012:policy/emr_on_eks_fgac_query_execution_role-policy",
+        "Path": "/",
+        "DefaultVersionId": "v1",
+        "AttachmentCount": 0,
+        "PermissionsBoundaryUsageCount": 0,
+        "IsAttachable": true,
+        "CreateDate": "2025-07-30T13:51:41+00:00",
+        "UpdateDate": "2025-07-30T13:51:41+00:00"
+    }
+}
+{
+    "Role": {
+        "Path": "/",
+        "RoleName": "emr_on_eks_fgac_query_execution_role",
+        "RoleId": "AROA6CCCRW2HXJOE22TN2",
+        "Arn": "arn:aws:iam::123456789012:role/emr_on_eks_fgac_query_execution_role",
+        "CreateDate": "2025-07-30T13:51:43+00:00",
+        "AssumeRolePolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Principal": {
+                        "AWS": "arn:aws:iam::123456789012:root"
+                    },
+                    "Action": "sts:AssumeRole",
+                    "Condition": {}
+                }
+            ]
+        }
+    }
+}
+===========================================================
+  Create EMR on EKS Job Execution IAM Role for Team 1......
+===========================================================
+{
+    "Policy": {
+        "PolicyName": "emr_on_eks_fgac_job_team1_execution_role-policy",
+        "PolicyId": "ANPA6CCCRW2HYBZVCXVRN",
+        "Arn": "arn:aws:iam::123456789012:policy/emr_on_eks_fgac_job_team1_execution_role-policy",
+        "Path": "/",
+        "DefaultVersionId": "v1",
+        "AttachmentCount": 0,
+        "PermissionsBoundaryUsageCount": 0,
+        "IsAttachable": true,
+        "CreateDate": "2025-07-30T13:51:53+00:00",
+        "UpdateDate": "2025-07-30T13:51:53+00:00"
+    }
+}
+{
+    "Role": {
+        "Path": "/",
+        "RoleName": "emr_on_eks_fgac_job_team1_execution_role",
+        "RoleId": "AROA6CCCRW2HVUXQ2ANMB",
+        "Arn": "arn:aws:iam::123456789012:role/emr_on_eks_fgac_job_team1_execution_role",
+        "CreateDate": "2025-07-30T13:51:56+00:00",
+        "AssumeRolePolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Sid": "TrustQueryEngineRoleToAssume",
+                    "Effect": "Allow",
+                    "Principal": {
+                        "AWS": "arn:aws:iam::123456789012:role/emr_on_eks_fgac_query_execution_role"
+                    },
+                    "Action": [
+                        "sts:AssumeRole",
+                        "sts:TagSession"
+                    ],
+                    "Condition": {
+                        "StringLike": {
+                            "aws:RequestTag/LakeFormationAuthorizedCaller": "EMR on EKS Engine"
+                        }
+                    }
+                },
+                {
+                    "Sid": "TrustQueryEngineRoleToAssumeRoleOnly",
+                    "Effect": "Allow",
+                    "Principal": {
+                        "AWS": "arn:aws:iam::123456789012:role/emr_on_eks_fgac_query_execution_role"
+                    },
+                    "Action": "sts:AssumeRole"
+                }
+            ]
+        }
+    }
+}
+===========================================================
+  Create EMR on EKS Job Execution IAM Role fro Team 2......
+===========================================================
+{
+    "Policy": {
+        "PolicyName": "emr_on_eks_fgac_job_team2_execution_role-policy",
+        "PolicyId": "ANPA6CCCRW2H4DEP2KEL5",
+        "Arn": "arn:aws:iam::123456789012:policy/emr_on_eks_fgac_job_team2_execution_role-policy",
+        "Path": "/",
+        "DefaultVersionId": "v1",
+        "AttachmentCount": 0,
+        "PermissionsBoundaryUsageCount": 0,
+        "IsAttachable": true,
+        "CreateDate": "2025-07-30T13:52:01+00:00",
+        "UpdateDate": "2025-07-30T13:52:01+00:00"
+    }
+}
+{
+    "Role": {
+        "Path": "/",
+        "RoleName": "emr_on_eks_fgac_job_team2_execution_role",
+        "RoleId": "AROA6CCCRW2HQD44272SY",
+        "Arn": "arn:aws:iam::123456789012:role/emr_on_eks_fgac_job_team2_execution_role",
+        "CreateDate": "2025-07-30T13:52:03+00:00",
+        "AssumeRolePolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Sid": "TrustQueryEngineRoleToAssume",
+                    "Effect": "Allow",
+                    "Principal": {
+                        "AWS": "arn:aws:iam::123456789012:role/emr_on_eks_fgac_query_execution_role"
+                    },
+                    "Action": [
+                        "sts:AssumeRole",
+                        "sts:TagSession"
+                    ],
+                    "Condition": {
+                        "StringLike": {
+                            "aws:RequestTag/LakeFormationAuthorizedCaller": "EMR on EKS Engine"
+                        }
+                    }
+                },
+                {
+                    "Sid": "TrustQueryEngineRoleToAssumeRoleOnly",
+                    "Effect": "Allow",
+                    "Principal": {
+                        "AWS": "arn:aws:iam::123456789012:role/emr_on_eks_fgac_query_execution_role"
+                    },
+                    "Action": "sts:AssumeRole"
+                }
+            ]
+        }
+    }
+}
+===============================================
+  Create EKS Cluster ......
+===============================================
+emr-on-eks-fgac-blog
+2025-07-30 09:52:10 [ℹ]  eksctl version 0.203.0
+2025-07-30 09:52:10 [ℹ]  using region us-west-2
+2025-07-30 09:52:11 [ℹ]  setting availability zones to [us-west-2a us-west-2d us-west-2b]
+2025-07-30 09:52:11 [ℹ]  subnets for us-west-2a - public:111.111.0.0/11 private:111.111.11.0/19
+2025-07-30 09:52:11 [ℹ]  subnets for us-west-2d - public:111.111.11.0/19 private:111.111.111.0/19
+2025-07-30 09:52:11 [ℹ]  subnets for us-west-2b - public:111.111.11.0/19 private:111.111.111.0/19
+2025-07-30 09:52:11 [ℹ]  nodegroup "ng-0a171b67" will use "" [AmazonLinux2/1.30]
+2025-07-30 09:52:11 [ℹ]  using Kubernetes version 1.30
+2025-07-30 09:52:11 [ℹ]  creating EKS cluster "emr-on-eks-fgac-blog" in "us-west-2" region with managed nodes
+2025-07-30 09:52:11 [ℹ]  will create 2 separate CloudFormation stacks for cluster itself and the initial managed nodegroup
+2025-07-30 09:52:11 [ℹ]  if you encounter any issues, check CloudFormation console or try 'eksctl utils describe-stacks --region=us-west-2 --cluster=emr-on-eks-fgac-blog'
+2025-07-30 09:52:11 [ℹ]  Kubernetes API endpoint access will use default of {publicAccess=true, privateAccess=false} for cluster "emr-on-eks-fgac-blog" in "us-west-2"
+2025-07-30 09:52:11 [ℹ]  CloudWatch logging will not be enabled for cluster "emr-on-eks-fgac-blog" in "us-west-2"
+2025-07-30 09:52:11 [ℹ]  you can enable it with 'eksctl utils update-cluster-logging --enable-types={SPECIFY-YOUR-LOG-TYPES-HERE (e.g. all)} --region=us-west-2 --cluster=emr-on-eks-fgac-blog'
+2025-07-30 09:52:11 [ℹ]  default addons metrics-server, vpc-cni, kube-proxy, coredns were not specified, will install them as EKS addons
+2025-07-30 09:52:11 [ℹ]  
+2 sequential tasks: { create cluster control plane "emr-on-eks-fgac-blog", 
+    2 sequential sub-tasks: { 
+        2 sequential sub-tasks: { 
+            1 task: { create addons },
+            wait for control plane to become ready,
+        },
+        create managed nodegroup "ng-0a171b67",
+    } 
+}
+2025-07-30 09:52:11 [ℹ]  building cluster stack "eksctl-emr-on-eks-fgac-blog-cluster"
+2025-07-30 09:52:11 [ℹ]  deploying stack "eksctl-emr-on-eks-fgac-blog-cluster"
+2025-07-30 09:52:41 [ℹ]  waiting for CloudFormation stack "eksctl-emr-on-eks-fgac-blog-cluster"
+2025-07-30 09:53:12 [ℹ]  waiting for CloudFormation stack "eksctl-emr-on-eks-fgac-blog-cluster"
+2025-07-30 09:54:12 [ℹ]  waiting for CloudFormation stack "eksctl-emr-on-eks-fgac-blog-cluster"
+2025-07-30 09:55:13 [ℹ]  waiting for CloudFormation stack "eksctl-emr-on-eks-fgac-blog-cluster"
+2025-07-30 09:56:13 [ℹ]  waiting for CloudFormation stack "eksctl-emr-on-eks-fgac-blog-cluster"
+2025-07-30 09:57:14 [ℹ]  waiting for CloudFormation stack "eksctl-emr-on-eks-fgac-blog-cluster"
+2025-07-30 09:58:14 [ℹ]  waiting for CloudFormation stack "eksctl-emr-on-eks-fgac-blog-cluster"
+2025-07-30 09:59:14 [ℹ]  waiting for CloudFormation stack "eksctl-emr-on-eks-fgac-blog-cluster"
+2025-07-30 10:00:15 [ℹ]  waiting for CloudFormation stack "eksctl-emr-on-eks-fgac-blog-cluster"
+2025-07-30 10:00:18 [ℹ]  creating addon
+2025-07-30 10:00:19 [ℹ]  successfully created addon
+2025-07-30 10:00:19 [!]  recommended policies were found for "vpc-cni" addon, but since OIDC is disabled on the cluster, eksctl cannot configure the requested permissions; the recommended way to provide IAM permissions for "vpc-cni" addon is via pod identity associations; after addon creation is completed, add all recommended policies to the config file, under `addon.PodIdentityAssociations`, and run `eksctl update addon`
+2025-07-30 10:00:19 [ℹ]  creating addon
+2025-07-30 10:00:20 [ℹ]  successfully created addon
+2025-07-30 10:00:20 [ℹ]  creating addon
+2025-07-30 10:00:21 [ℹ]  successfully created addon
+2025-07-30 10:00:21 [ℹ]  creating addon
+2025-07-30 10:00:21 [ℹ]  successfully created addon
+2025-07-30 10:02:25 [ℹ]  building managed nodegroup stack "eksctl-emr-on-eks-fgac-blog-nodegroup-ng-0a171b67"
+2025-07-30 10:02:26 [ℹ]  deploying stack "eksctl-emr-on-eks-fgac-blog-nodegroup-ng-0a171b67"
+2025-07-30 10:02:26 [ℹ]  waiting for CloudFormation stack "eksctl-emr-on-eks-fgac-blog-nodegroup-ng-0a171b67"
+2025-07-30 10:02:56 [ℹ]  waiting for CloudFormation stack "eksctl-emr-on-eks-fgac-blog-nodegroup-ng-0a171b67"
+2025-07-30 10:03:50 [ℹ]  waiting for CloudFormation stack "eksctl-emr-on-eks-fgac-blog-nodegroup-ng-0a171b67"
+2025-07-30 10:04:47 [ℹ]  waiting for CloudFormation stack "eksctl-emr-on-eks-fgac-blog-nodegroup-ng-0a171b67"
+2025-07-30 10:04:47 [ℹ]  waiting for the control plane to become ready
+2025-07-30 10:04:47 [✔]  saved kubeconfig as "/Users/abc/.kube/config"
+2025-07-30 10:04:47 [ℹ]  no tasks
+2025-07-30 10:04:47 [✔]  all EKS cluster resources for "emr-on-eks-fgac-blog" have been created
+2025-07-30 10:05:34 [ℹ]  nodegroup "ng-0a171b67" has 2 node(s)
+2025-07-30 10:05:34 [ℹ]  node "ip-111-111-1-11.us-west-2.compute.internal" is ready
+2025-07-30 10:05:34 [ℹ]  node "ip-111-111-11-111.us-west-2.compute.internal" is ready
+2025-07-30 10:05:34 [ℹ]  waiting for at least 2 node(s) to become ready in "ng-0a171b67"
+2025-07-30 10:05:35 [ℹ]  nodegroup "ng-0a171b67" has 2 node(s)
+2025-07-30 10:05:35 [ℹ]  node "ip-111-111-1-11.us-west-2.compute.internal" is ready
+2025-07-30 10:05:35 [ℹ]  node "ip-111-111-11-111.us-west-2.compute.internal" is ready
+2025-07-30 10:05:35 [✔]  created 1 managed nodegroup(s) in cluster "emr-on-eks-fgac-blog"
+2025-07-30 10:05:36 [ℹ]  kubectl command should work with "/Users/abc/.kube/config", try 'kubectl get nodes'
+2025-07-30 10:05:36 [✔]  EKS cluster "emr-on-eks-fgac-blog" in "us-west-2" region is ready
+2025-07-30 10:05:39 [ℹ]  will create IAM Open ID Connect provider for cluster "emr-on-eks-fgac-blog" in "us-west-2"
+2025-07-30 10:05:40 [✔]  created IAM Open ID Connect provider for cluster "emr-on-eks-fgac-blog" in "us-west-2"
+Updated context arn:aws:eks:us-west-2:123456789012:cluster/emr-on-eks-fgac-blog in /Users/abc/.kube/config
+===============================================
+  Enable EMR on EKS ......
+===============================================
+namespace/lf-fgac-blog-user created
+namespace/lf-fgac-blog-secure created
+NAME                  STATUS   AGE
+default               Active   8m27s
+kube-node-lease       Active   8m27s
+kube-public           Active   8m27s
+kube-system           Active   8m27s
+lf-fgac-blog-secure   Active   3s
+lf-fgac-blog-user     Active   5s
+role.rbac.authorization.k8s.io/emr-containers created
+role.rbac.authorization.k8s.io/emr-containers created
+rolebinding.rbac.authorization.k8s.io/emr-containers created
+rolebinding.rbac.authorization.k8s.io/emr-containers created
+clusterrole.rbac.authorization.k8s.io/emr-containers created
+clusterrolebinding.rbac.authorization.k8s.io/emr-containers created
+===============================================
+  Update EKS cluster nodegroup ......
+emr-on-eks-fgac-blog
+===============================================
+ng-0a171b67
+2025-07-30 10:06:11 [ℹ]  scaling nodegroup "ng-0a171b67" in cluster emr-on-eks-fgac-blog
+2025-07-30 10:06:12 [ℹ]  initiated scaling of nodegroup
+2025-07-30 10:06:12 [ℹ]  to see the status of the scaling run `eksctl get nodegroup --cluster emr-on-eks-fgac-blog --region us-west-2 --name ng-0a171b67`
+===============================================
+  Update IAM role Trust policies ......
+emr-on-eks-fgac-blog
+===============================================
+Successfully updated trust policy of role emr_on_eks_fgac_job_team2_execution_role
+Successfully updated trust policy of role emr_on_eks_fgac_job_team1_execution_role
+Successfully updated trust policy of role emr_on_eks_fgac_query_execution_role
+Grant permission on local database
+Grant permission on rl_patients and rl_claims resource links for Team 1
+Grant permission on rl_claims resource link for Team 2
+Grant on target permission on resource link
+uug2sy9d0yhj1
+{
+    "id": "<emr-on-eks-virtual-cluster-id>",
+    "name": "emr-on-eks-vc",
+    "arn": "arn:aws:emr-containers:us-west-2:123456789012:/virtualclusters/<emr-on-eks-virtual-cluster-id>"
+}
+blmmc6e4e5oddrk1lwir33h51
+Completed 1.2 KiB/1.2 KiB (3.0 KiB/s) with 1 file(s) remaining
+upload: ../../../../../tmp/cross-account-patient-job.py to s3://blog-emr-eks-fgac-test-123456789012-us-west-2-dev/jobs/cross-account-patient-job.py
+========================================================
+  Patients: Run PySpark job on EMR on EKS Cluster ......
+========================================================
+{
+    "id": "0000000362rl1f40nlt",
+    "name": "patients_care_team_query_tables",
+    "arn": "arn:aws:emr-containers:us-west-2:123456789012:/virtualclusters/<emr-on-eks-virtual-cluster-id>/jobruns/0000000362rl1f40nlt",
+    "virtualClusterId": "<emr-on-eks-virtual-cluster-id>"
+}
+Completed 1.1 KiB/1.1 KiB (2.9 KiB/s) with 1 file(s) remaining
+upload: ../../../../../tmp/cross-account-claims-job.py to s3://blog-emr-eks-fgac-test-123456789012-us-west-2-dev/jobs/cross-account-claims-job.py
+======================================================
+  Claims: Run PySpark job on EMR on EKS Cluster ......
+======================================================
+{
+    "id": "0000000362rl1nea8v5",
+    "name": "claims_care_team_query_tables",
+    "arn": "arn:aws:emr-containers:us-west-2:123456789012:/virtualclusters/<emr-on-eks-virtual-cluster-id>/jobruns/0000000362rl1nea8v5",
+    "virtualClusterId": "<emr-on-eks-virtual-cluster-id>"
+}

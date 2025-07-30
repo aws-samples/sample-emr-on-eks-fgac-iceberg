@@ -1,0 +1,59 @@
+=============================================================================
+  Revoke table permissions to Consumer account ......
+=============================================================================
+=============================================================================
+  Revoke data-cell level filtering permissions to Consumer account ......
+=============================================================================
+=============================================================================
+  Delete data-cell level filter from Producer account ......
+=============================================================================
+
+An error occurred (EntityNotFoundException) when calling the DeleteDataCellsFilter operation: Entity Not Found
+=============================================================================
+  Revoke database permissions to Consumer account ......
+=============================================================================
+=============================================================================
+  Deregister S3 bucket as data location from Lake Formation ......
+=============================================================================
+=============================================================================
+  Drop Glue tables ......
+=============================================================================
+{
+    "Errors": []
+}
+=============================================================================
+  Delete HealthCare Database ......
+=============================================================================
+=============================================================================
+  Delete S3 bucket data and delete S3 bucket ......
+=============================================================================
+delete S3 bucket blog-emr-eks-fgac-data-098765432109-us-west-2-dev
+delete: s3://blog-emr-eks-fgac-data-098765432109-us-west-2-dev/warehouse/healthcare_db/claims/data/qXgZ6A/status=Approved/20250423_201820_00172_yp2xi-1ad04e28-d5fd-4eb3-9eea-9cdcb69bb872.parquet
+delete: s3://blog-emr-eks-fgac-data-098765432109-us-west-2-dev/warehouse/healthcare_db/claims/data/s6QeZA/status=Denied/20250423_201820_00172_yp2xi-21fd1dad-de8d-4571-85d1-ae05478849cd.parquet
+delete: s3://blog-emr-eks-fgac-data-098765432109-us-west-2-dev/warehouse/healthcare_db/claims/metadata/00001-73df6555-9b57-4593-9af3-516072865455.metadata.json
+delete: s3://blog-emr-eks-fgac-data-098765432109-us-west-2-dev/warehouse/healthcare_db/patients/data/1Wz7CQ/city=Dallas/20250423_201815_00068_m56ns-9a86eb85-e6a5-4d19-9a72-6f697f339828.parquet
+delete: s3://blog-emr-eks-fgac-data-098765432109-us-west-2-dev/warehouse/healthcare_db/claims/metadata/00000-da1db5fb-7006-4066-9fd1-5719e2f93980.metadata.json
+delete: s3://blog-emr-eks-fgac-data-098765432109-us-west-2-dev/warehouse/healthcare_db/claims/metadata/snap-5012411419357325227-1-a0192979-5e82-4ffe-ab38-cf7f44819a00.avro
+delete: s3://blog-emr-eks-fgac-data-098765432109-us-west-2-dev/warehouse/healthcare_db/patients/data/4BBFQA/city=Buffalo/20250423_201815_00068_m56ns-5d58de98-7a18-47eb-a172-5d9d8a47e4b6.parquet
+delete: s3://blog-emr-eks-fgac-data-098765432109-us-west-2-dev/warehouse/healthcare_db/claims/metadata/a0192979-5e82-4ffe-ab38-cf7f44819a00-m0.avro
+delete: s3://blog-emr-eks-fgac-data-098765432109-us-west-2-dev/warehouse/healthcare_db/patients/data/08sWPg/city=New+York+City/20250423_201815_00068_m56ns-aeab586a-a651-4d37-8731-2598710fd0e6.parquet
+delete: s3://blog-emr-eks-fgac-data-098765432109-us-west-2-dev/warehouse/healthcare_db/patients/data/8ve4jA/city=Albany/20250423_201815_00068_m56ns-5ce691da-cc41-49a5-b371-d2ea2dba225c.parquet
+delete: s3://blog-emr-eks-fgac-data-098765432109-us-west-2-dev/warehouse/healthcare_db/patients/data/97F0DA/city=San+Diego/20250423_201815_00068_m56ns-1d8d1bf7-29bc-43b3-ba7d-8f715f087c51.parquet
+delete: s3://blog-emr-eks-fgac-data-098765432109-us-west-2-dev/warehouse/healthcare_db/patients/data/CIV2xg/city=Los+Angeles/20250423_201815_00068_m56ns-7285b72d-5776-4f65-914d-9920f9ae9602.parquet
+delete: s3://blog-emr-eks-fgac-data-098765432109-us-west-2-dev/warehouse/healthcare_db/patients/data/H9qClA/city=San+Antonio/20250423_201815_00068_m56ns-31bd8747-53cd-4541-a616-584b58234391.parquet
+delete: s3://blog-emr-eks-fgac-data-098765432109-us-west-2-dev/warehouse/healthcare_db/patients/data/IOwgPg/city=Rochester/20250423_201815_00068_m56ns-e87b107a-ba71-4486-96f9-b82e0185088d.parquet
+delete: s3://blog-emr-eks-fgac-data-098765432109-us-west-2-dev/warehouse/healthcare_db/patients/data/J8LFEA/city=Houston/20250423_201815_00068_m56ns-0653f405-a3d1-4bc4-a380-025479ac3de7.parquet
+delete: s3://blog-emr-eks-fgac-data-098765432109-us-west-2-dev/warehouse/healthcare_db/patients/data/J1rn5A/city=Austin/20250423_201815_00068_m56ns-163aaad7-10d6-444b-b6a6-f2280e12a8c4.parquet
+delete: s3://blog-emr-eks-fgac-data-098765432109-us-west-2-dev/warehouse/healthcare_db/patients/metadata/00000-73f79109-eaad-4f6c-879b-d2d0b0211bd2.metadata.json
+delete: s3://blog-emr-eks-fgac-data-098765432109-us-west-2-dev/warehouse/healthcare_db/patients/data/tKMAUw/city=San+Francisco/20250423_201815_00068_m56ns-d5552c9d-ef33-48bb-9f63-14fc47698e60.parquet
+delete: s3://blog-emr-eks-fgac-data-098765432109-us-west-2-dev/warehouse/healthcare_db/patients/metadata/00001-fbc2fb28-57a3-4a73-b6a4-cc9e3c124436.metadata.json
+delete: s3://blog-emr-eks-fgac-data-098765432109-us-west-2-dev/warehouse/healthcare_db/patients/metadata/af459d82-ddfd-4651-805b-998cb282b565-m0.avro
+delete: s3://blog-emr-eks-fgac-data-098765432109-us-west-2-dev/warehouse/healthcare_db/patients/metadata/snap-4523138961165969046-1-af459d82-ddfd-4651-805b-998cb282b565.avro
+delete: s3://blog-emr-eks-fgac-data-098765432109-us-west-2-dev/warehouse/healthcare_db/claims/data/fNN04Q/status=Pending/20250423_201820_00172_yp2xi-dda7c5d3-4b57-46f5-a7e3-4aa8a44a6dcb.parquet
+delete: s3://blog-emr-eks-fgac-data-098765432109-us-west-2-dev/warehouse/healthcare_db/patients/data/BE31eg/city=Sacramento/20250423_201815_00068_m56ns-a624289f-2627-4a51-a65d-594dc0183f8d.parquet
+=============================================================================
+  Delete IAM Policies and IAM Role ......
+=============================================================================
+Detach policy
+Delete IAM role
+Delete Policy

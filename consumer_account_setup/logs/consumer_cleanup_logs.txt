@@ -1,0 +1,78 @@
+=============================================================================
+  Revoke original table permissions to Consumer account ......
+=============================================================================
+=============================================================================
+  Revoke resource link table permissions to Consumer account ......
+=============================================================================
+=============================================================================
+  Revoke database permissions to EMR on EKS Job Execution IAM roles ......
+=============================================================================
+=============================================================================
+  Drop Glue tables ......
+=============================================================================
+{
+    "Errors": []
+}
+=============================================================================
+  Delete Cross-account HealthCare Database ......
+=============================================================================
+delete EMR on EKS IAM Job execution role for Team 1!
+Detach policy
+Delete IAM role
+Delete Policy
+delete EMR on EKS IAM Job execution role for Team 2!
+Detach policy
+Delete IAM role
+Delete Policy
+delete EMR on EKS IAM Query execution role!
+Detach policy
+Delete IAM role
+Delete Policy
+=============================================================================
+                           delete EMR on EKS virtual cluster ......
+=============================================================================
+{
+    "id": "<emr-on-eks-cluster-id>"
+}
+=============================================================================
+                           delete EKS cluster ......
+=============================================================================
+2025-07-29 23:18:22 [ℹ]  deleting EKS cluster "emr-on-eks-fgac-blog"
+2025-07-29 23:18:23 [ℹ]  will drain 0 unmanaged nodegroup(s) in cluster "emr-on-eks-fgac-blog"
+2025-07-29 23:18:23 [ℹ]  starting parallel draining, max in-flight of 1
+2025-07-29 23:18:24 [ℹ]  deleted 0 Fargate profile(s)
+2025-07-29 23:18:25 [✔]  kubeconfig has been updated
+2025-07-29 23:18:25 [ℹ]  cleaning up AWS load balancers created by Kubernetes objects of Kind Service or Ingress
+2025-07-29 23:18:26 [ℹ]  
+3 sequential tasks: { delete nodegroup "ng-223a5e10", delete IAM OIDC provider, delete cluster control plane "emr-on-eks-fgac-blog" [async] 
+}
+2025-07-29 23:18:27 [ℹ]  will delete stack "eksctl-emr-on-eks-fgac-blog-nodegroup-ng-223a5e10"
+2025-07-29 23:18:27 [ℹ]  waiting for stack "eksctl-emr-on-eks-fgac-blog-nodegroup-ng-223a5e10" to get deleted
+2025-07-29 23:18:27 [ℹ]  waiting for CloudFormation stack "eksctl-emr-on-eks-fgac-blog-nodegroup-ng-223a5e10"
+2025-07-29 23:18:57 [ℹ]  waiting for CloudFormation stack "eksctl-emr-on-eks-fgac-blog-nodegroup-ng-223a5e10"
+2025-07-29 23:19:45 [ℹ]  waiting for CloudFormation stack "eksctl-emr-on-eks-fgac-blog-nodegroup-ng-223a5e10"
+2025-07-29 23:20:37 [ℹ]  waiting for CloudFormation stack "eksctl-emr-on-eks-fgac-blog-nodegroup-ng-223a5e10"
+2025-07-29 23:22:29 [ℹ]  waiting for CloudFormation stack "eksctl-emr-on-eks-fgac-blog-nodegroup-ng-223a5e10"
+2025-07-29 23:23:44 [ℹ]  waiting for CloudFormation stack "eksctl-emr-on-eks-fgac-blog-nodegroup-ng-223a5e10"
+2025-07-29 23:24:21 [ℹ]  waiting for CloudFormation stack "eksctl-emr-on-eks-fgac-blog-nodegroup-ng-223a5e10"
+2025-07-29 23:25:25 [ℹ]  waiting for CloudFormation stack "eksctl-emr-on-eks-fgac-blog-nodegroup-ng-223a5e10"
+2025-07-29 23:27:14 [ℹ]  waiting for CloudFormation stack "eksctl-emr-on-eks-fgac-blog-nodegroup-ng-223a5e10"
+2025-07-29 23:27:16 [ℹ]  will delete stack "eksctl-emr-on-eks-fgac-blog-cluster"
+2025-07-29 23:27:18 [✔]  all cluster resources were deleted
+=============================================================================
+  Delete S3 bucket data and delete S3 bucket ......
+=============================================================================
+delete: s3://blog-emr-eks-fgac-test-123456789012-us-west-2-dev/spark-logs/ez64ty104t8wks3fwwd4aeu71/jobs/0000000362p53jr8dco/containers/spark-0000000362p53jr8dco/spark-0000000362p53jr8dco-driver/stdout.gz
+delete: s3://blog-emr-eks-fgac-test-123456789012-us-west-2-dev/spark-logs/ez64ty104t8wks3fwwd4aeu71/jobs/0000000362p53jr8dco/job-metadata.log
+delete: s3://blog-emr-eks-fgac-test-123456789012-us-west-2-dev/spark-logs/ez64ty104t8wks3fwwd4aeu71/jobs/0000000362p53jr8dco/containers/spark-0000000362p53jr8dco/spark-0000000362p53jr8dco-driver/stderr.gz
+delete: s3://blog-emr-eks-fgac-test-123456789012-us-west-2-dev/spark-logs/ez64ty104t8wks3fwwd4aeu71/jobs/0000000362p53s4ghqa/control-logs/0000000362p53s4ghqa-f5xdt/stderr.gz
+delete: s3://blog-emr-eks-fgac-test-123456789012-us-west-2-dev/spark-logs/ez64ty104t8wks3fwwd4aeu71/jobs/0000000362p53s4ghqa/containers/spark-0000000362p53s4ghqa/spark-0000000362p53s4ghqa-driver/stdout.gz
+delete: s3://blog-emr-eks-fgac-test-123456789012-us-west-2-dev/jobs/cross-account-claims-job.py
+delete: s3://blog-emr-eks-fgac-test-123456789012-us-west-2-dev/jobs/cross-account-patient-job.py
+delete: s3://blog-emr-eks-fgac-test-123456789012-us-west-2-dev/spark-logs/ez64ty104t8wks3fwwd4aeu71/jobs/0000000362p53jr8dco/control-logs/0000000362p53jr8dco-2gwft/stderr.gz
+delete: s3://blog-emr-eks-fgac-test-123456789012-us-west-2-dev/spark-logs/ez64ty104t8wks3fwwd4aeu71/jobs/0000000362p53s4ghqa/containers/spark-0000000362p53s4ghqa/spark-0000000362p53s4ghqa-driver/stderr.gz
+delete: s3://blog-emr-eks-fgac-test-123456789012-us-west-2-dev/spark-logs/ez64ty104t8wks3fwwd4aeu71/jobs/0000000362p53s4ghqa/job-metadata.log
+delete: s3://blog-emr-eks-fgac-test-123456789012-us-west-2-dev/spark-logs/ez64ty104t8wks3fwwd4aeu71/jobs/0000000362p6e3hae32/containers/spark-0000000362p6e3hae32/spark-0000000362p6e3hae32-driver/stderr.gz
+delete: s3://blog-emr-eks-fgac-test-123456789012-us-west-2-dev/spark-logs/ez64ty104t8wks3fwwd4aeu71/jobs/0000000362p6e3hae32/containers/spark-0000000362p6e3hae32/spark-0000000362p6e3hae32-driver/stdout.gz
+delete: s3://blog-emr-eks-fgac-test-123456789012-us-west-2-dev/spark-logs/ez64ty104t8wks3fwwd4aeu71/jobs/0000000362p6e3hae32/job-metadata.log
+delete: s3://blog-emr-eks-fgac-test-123456789012-us-west-2-dev/spark-logs/ez64ty104t8wks3fwwd4aeu71/jobs/0000000362p6e3hae32/control-logs/0000000362p6e3hae32-54fv9/stderr.gz

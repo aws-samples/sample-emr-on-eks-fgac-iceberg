@@ -1,0 +1,95 @@
+=============================================================================
+  Create S3 bucket for iceberg table data ......
+=============================================================================
+producer_account_setup/producer_iceberg_datalake_setup.sh: line 21: [: us-west-2: integer expression expected
+setup data bucket in another region......
+{
+    "Location": "http://blog-emr-eks-fgac-data-098765432109-us-west-2-dev.s3.amazonaws.com/"
+}
+==========================================================
+  Create DataAccess IAM Role for Lake formation ......
+==========================================================
+{
+    "Policy": {
+        "PolicyName": "lf_data_access_execution_role-policy",
+        "PolicyId": "ANPA6RHZ2LT2BKDRKJMLE",
+        "Arn": "arn:aws:iam::098765432109:policy/lf_data_access_execution_role-policy",
+        "Path": "/",
+        "DefaultVersionId": "v1",
+        "AttachmentCount": 0,
+        "PermissionsBoundaryUsageCount": 0,
+        "IsAttachable": true,
+        "CreateDate": "2025-07-29T22:16:49+00:00",
+        "UpdateDate": "2025-07-29T22:16:49+00:00"
+    }
+}
+{
+    "Role": {
+        "Path": "/",
+        "RoleName": "lf_data_access_execution_role",
+        "RoleId": "AROA6RHZ2LT2FJYK4WJYC",
+        "Arn": "arn:aws:iam::098765432109:role/lf_data_access_execution_role",
+        "CreateDate": "2025-07-29T22:16:52+00:00",
+        "AssumeRolePolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Sid": "",
+                    "Effect": "Allow",
+                    "Principal": {
+                        "Service": [
+                            "glue.amazonaws.com",
+                            "lakeformation.amazonaws.com"
+                        ]
+                    },
+                    "Action": "sts:AssumeRole"
+                }
+            ]
+        }
+    }
+}
+=============================================================================================
+  Register S3 bucket as data location with DataAccess IAM Role for Lake formation ......
+=============================================================================================
+=============================================================================
+  Create Glue Database ......
+=============================================================================
+=============================================================================
+  Create Patients Glue table ......
+=============================================================================
+{
+    "QueryExecutionId": "600d8816-e8a4-4b70-b3d3-d49822e1d2bf"
+}
+=============================================================================
+  Insert records into Patients glue table using Athena query ......
+=============================================================================
+{
+    "QueryExecutionId": "82f1d160-1f17-43ae-b3de-686cf1ef7285"
+}
+=============================================================================
+  Create Claims Glue table ......
+=============================================================================
+{
+    "QueryExecutionId": "7ee43e55-a3bb-429b-b021-fc071558fdbf"
+}
+=============================================================================
+  Insert records into Claims glue table using Athena query ......
+=============================================================================
+{
+    "QueryExecutionId": "739402a1-7143-48c2-9956-7e2f6e23283d"
+}
+=============================================================================
+  Grant database permissions to Consumer account ......
+=============================================================================
+=============================================================================
+  Create Column level filter on Patients table to Consumer account ......
+=============================================================================
+=============================================================================
+  Grant Database permissions to Consumer account ......
+=============================================================================
+=============================================================================
+  Grant Column level filter on Patients table to Consumer account ......
+=============================================================================
+=============================================================================
+  Grant Claims table permissions to Consumer account ......
+=============================================================================
