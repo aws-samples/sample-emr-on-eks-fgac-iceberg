@@ -1,7 +1,8 @@
-export AWS_REGION=us-west-2
-export PRODUCER_AWS_ACCOUNT=999333222111
+# export AWS_REGION=us-west-2
+# export PRODUCER_AWS_ACCOUNT=999333222111
+# export ENVIRONMENT=dev
+
 export CONSUMER_AWS_ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
-export ENVIRONMENT=dev
 export PRODUCER_DATABASE=healthcare_db
 export CONSUMER_DATABASE=consumer_healthcare_db
 export rl_patients=rl_patients
@@ -13,8 +14,9 @@ export S3_TEST_BUCKET=blog-emr-eks-fgac-test-$CONSUMER_AWS_ACCOUNT-$AWS_REGION-$
 export TEAM1_JOB_ROLE_NAME=emr_on_eks_fgac_job_team1_execution_role
 export TEAM2_JOB_ROLE_NAME=emr_on_eks_fgac_job_team2_execution_role
 export QUERY_ROLE_NAME=emr_on_eks_fgac_query_execution_role
-export EKSCLUSTER_NAME=emr-on-eks-fgac-blog
-export EMR_VC_NAME=emr-on-eks-vc
+export EKSCLUSTER_NAME=fgac-blog
+export EMR_VC_NAME=emr-on-eks-$EKSCLUSTER_NAME
+
 
 ################################################################################################
 #       Revoke permissions to Consumer account EMR on EKS Job Execution IAM role
@@ -23,6 +25,21 @@ export EMR_VC_NAME=emr-on-eks-vc
 echo "============================================================================="
 echo "  Revoke original table permissions to Consumer account ......"
 echo "============================================================================="
+
+for rl in $patients $claims; do
+  aws lakeformation revoke-permissions \
+    --principal DataLakePrincipalIdentifier=arn:aws:iam::$CONSUMER_AWS_ACCOUNT:role/${TEAM1_JOB_ROLE_NAME} \
+    --permissions "SELECT" \
+    --resource '{
+        "Table": {
+            "DatabaseName": "'${PRODUCER_DATABASE}'",
+            "Name": "'${patients}'",
+            "CatalogId": "'${PRODUCER_AWS_ACCOUNT}'"
+        }
+    }'
+done
+
+
 
 aws lakeformation revoke-permissions \
 --principal DataLakePrincipalIdentifier=arn:aws:iam::$CONSUMER_AWS_ACCOUNT:role/${TEAM1_JOB_ROLE_NAME} \
@@ -45,6 +62,9 @@ aws lakeformation revoke-permissions \
         "CatalogId": "'${PRODUCER_AWS_ACCOUNT}'"
     }
 }'
+
+
+
 
 aws lakeformation revoke-permissions \
 --principal DataLakePrincipalIdentifier=arn:aws:iam::$CONSUMER_AWS_ACCOUNT:role/${TEAM2_JOB_ROLE_NAME} \

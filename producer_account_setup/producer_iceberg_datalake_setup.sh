@@ -1,13 +1,12 @@
-export AWS_REGION=us-west-2
-export PRODUCER_AWS_ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
-export CONSUMER_AWS_ACCOUNT=123456789012
+# export AWS_REGION=us-west-2
+# export PRODUCER_AWS_ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
+# export CONSUMER_AWS_ACCOUNT=123456789012
+# export ATHENA_RESULT_BUCKET=athena-results-$PRODUCER_AWS_ACCOUNT-$AWS_REGION
+
 export ENVIRONMENT=dev
-
-
 export DATABASE=healthcare_db
 export patients=patients
 export claims=claims
-export ATHENA_RESULT_BUCKET=athena-results-$PRODUCER_AWS_ACCOUNT-$AWS_REGION
 export S3_DATA_BUCKET=blog-emr-eks-fgac-data-$PRODUCER_AWS_ACCOUNT-$AWS_REGION-$ENVIRONMENT
 export DATA_ACCESS_IAM_ROLE=lf_data_access_execution_role
 
@@ -167,7 +166,7 @@ echo "  Create Claims Glue table ......"
 echo "============================================================================="
 
 aws athena start-query-execution \
---query-string "CREATE TABLE $DATABASE.claims (
+--query-string "CREATE TABLE $DATABASE.$claims (
     claim_id STRING,
     patient_id BIGINT,
     claim_date DATE,
@@ -180,7 +179,7 @@ aws athena start-query-execution \
     updated_at TIMESTAMP
 )
 PARTITIONED BY (status)
-LOCATION 's3://$S3_DATA_BUCKET/warehouse/$DATABASE/claims/'
+LOCATION 's3://$S3_DATA_BUCKET/warehouse/$DATABASE/$claims/'
 TBLPROPERTIES (
     'table_type'='ICEBERG'
 );" \
@@ -195,7 +194,7 @@ echo "  Insert records into Claims glue table using Athena query ......"
 echo "============================================================================="
 
 aws athena start-query-execution \
---query-string "INSERT INTO $DATABASE.claims
+--query-string "INSERT INTO $DATABASE.$claims
 VALUES
     ('CLM001', 1001, DATE '2025-03-15', 'J45.901', '99213', 150.00, 'Approved', 'DR123', TIMESTAMP '2025-03-28 11:00:00', TIMESTAMP '2025-03-28 11:00:00'),
     ('CLM002', 1002, DATE '2025-03-20', 'M54.5', '97110', 200.00, 'Pending', 'DR456', TIMESTAMP '2025-03-28 11:05:00', TIMESTAMP '2025-03-28 11:05:00'),
@@ -312,4 +311,3 @@ aws lakeformation grant-permissions \
         "CatalogId": "'${PRODUCER_AWS_ACCOUNT}'"
     }
 }'
-
