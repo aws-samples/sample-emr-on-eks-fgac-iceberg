@@ -388,12 +388,9 @@ echo $VCID
 #       STEP 10 - Validate the fine-grained access control by running two PySpark jobs
 ################################################################################################################
 echo "========================================================"
-echo "  Validation: test the fine-grained access control by running two PySpark jobs......"
+echo " Patients: Create PySpark job code file & upload it to S3 ......"
 echo "========================================================"
-##############################################################################################################
-#       Patients: Create PySpark job code file & upload it to S3
-##############################################################################################################
-#
+
 cat <<EOF >/tmp/cross-account-patient-job.py
 import sys
 from operator import add
@@ -423,47 +420,48 @@ EOF
 aws s3 cp /tmp/cross-account-patient-job.py s3://$S3_TEST_BUCKET/jobs/ --region $AWS_REGION
 
 echo "========================================================"
-echo "  Patients: run a job with team 1 job execution role to query 2 iceberg tables ......"
+echo "  Patients: generate a job submission script with team 1 job execution role to query 2 iceberg tables ......"
 echo "========================================================"
 
-aws emr-containers start-job-run \
---virtual-cluster-id "$VCID" \
---name "patients_care_team_query" \
---execution-role-arn "arn:aws:iam::${CONSUMER_AWS_ACCOUNT}:role/$TEAM1_JOB_ROLE_NAME" \
---release-label emr-7.7.0-latest \
---job-driver '{    "sparkSubmitJobDriver": {
-      "entryPoint": "s3://'$S3_TEST_BUCKET'/jobs/cross-account-patient-job.py",
-      "sparkSubmitParameters": "--conf spark.executor.instances=2 --conf spark.executor.memory=4G --conf spark.driver.memory=4G --conf spark.kubernetes.driver.request.cores=1 --conf spark.kubernetes.executor.request.cores=1 --jars local:///usr/share/aws/iceberg/lib/iceberg-spark3-runtime.jar"
-    }}' \
---configuration-overrides '{"applicationConfiguration": [
-      {
-        "classification": "spark-defaults",
-        "properties": {
-          "spark.sql.extensions": "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions",
-          "spark.sql.catalog.dev": "org.apache.iceberg.spark.SparkCatalog",
-          "spark.sql.catalog.dev.warehouse": "s3://'$S3_PRODUCER_BUCKET'/warehouse",
-          "spark.sql.catalog.dev.catalog-impl": "org.apache.iceberg.aws.glue.GlueCatalog",
-          "spark.sql.catalog.dev.io-impl": "org.apache.iceberg.aws.s3.S3FileIO",
-          "spark.sql.catalog.dev.client.region": "'$AWS_REGION'",
-          "spark.sql.defaultCatalog": "dev",
-          "spark.sql.catalog.dev.type": "glue",
-          "spark.sql.catalog.dev.glue.id": "'$CONSUMER_AWS_ACCOUNT'",
-          "spark.sql.catalog.dev.glue.account-id": "'$CONSUMER_AWS_ACCOUNT'"
+cat <<EOF >/tmp/submit-patients-job.sh
+  aws emr-containers start-job-run \
+  --virtual-cluster-id "$VCID" \
+  --name "patients_care_team_query" \
+  --execution-role-arn "arn:aws:iam::${CONSUMER_AWS_ACCOUNT}:role/$TEAM1_JOB_ROLE_NAME" \
+  --release-label emr-7.7.0-latest \
+  --job-driver '{    "sparkSubmitJobDriver": {
+        "entryPoint": "s3://$S3_TEST_BUCKET/jobs/cross-account-patient-job.py",
+        "sparkSubmitParameters": "--conf spark.executor.instances=2 --conf spark.executor.memory=4G --conf spark.driver.memory=4G --conf spark.kubernetes.driver.request.cores=1 --conf spark.kubernetes.executor.request.cores=1 --jars local:///usr/share/aws/iceberg/lib/iceberg-spark3-runtime.jar"
+      }}' \
+  --configuration-overrides '{"applicationConfiguration": [
+        {
+          "classification": "spark-defaults",
+          "properties": {
+            "spark.sql.extensions": "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions",
+            "spark.sql.catalog.dev": "org.apache.iceberg.spark.SparkCatalog",
+            "spark.sql.catalog.dev.warehouse": "s3://$S3_PRODUCER_BUCKET/warehouse",
+            "spark.sql.catalog.dev.catalog-impl": "org.apache.iceberg.aws.glue.GlueCatalog",
+            "spark.sql.catalog.dev.io-impl": "org.apache.iceberg.aws.s3.S3FileIO",
+            "spark.sql.catalog.dev.client.region": "$AWS_REGION",
+            "spark.sql.defaultCatalog": "dev",
+            "spark.sql.catalog.dev.type": "glue",
+            "spark.sql.catalog.dev.glue.id": "$CONSUMER_AWS_ACCOUNT",
+            "spark.sql.catalog.dev.glue.account-id": "$CONSUMER_AWS_ACCOUNT"
+          }
         }
-      }
-    ],
-     "monitoringConfiguration":
-      {
-        "persistentAppUI": "ENABLED",
-        "s3MonitoringConfiguration": {"logUri": "s3://'$S3_TEST_BUCKET'/spark-logs/"}
-      }
-    }'
+      ],
+      "monitoringConfiguration":
+        {
+          "persistentAppUI": "ENABLED",
+          "s3MonitoringConfiguration": {"logUri": "s3://$S3_TEST_BUCKET/spark-logs/"}
+        }
+      }'
+EOF
 
+echo "========================================================"
+echo " Claims: Create PySpark job code file & upload it to S3 ......"
+echo "========================================================"
 
-##############################################################################################################
-#       Claims: Create PySpark job code file & upload it to S3
-################################################################################################################
-#
 cat <<EOF >/tmp/cross-account-claims-job.py
 import sys
 import logging
@@ -499,38 +497,40 @@ EOF
 aws --region $AWS_REGION s3 cp /tmp/cross-account-claims-job.py s3://$S3_TEST_BUCKET/jobs/
 
 echo "======================================================"
-echo "  Claims: run a job with team 2 job execution role to query 2 iceberg tables ......"
+echo "  Claims: generate a job submission script with team 2 job execution role to query 2 iceberg tables ......"
 echo "======================================================"
 
-aws emr-containers start-job-run \
---virtual-cluster-id "$VCID" \
---name "claims_care_team_query" \
---execution-role-arn "arn:aws:iam::${CONSUMER_AWS_ACCOUNT}:role/$TEAM2_JOB_ROLE_NAME" \
---release-label emr-7.7.0-latest \
---job-driver '{    "sparkSubmitJobDriver": {
-      "entryPoint": "s3://'$S3_TEST_BUCKET'/jobs/cross-account-claims-job.py",
-      "sparkSubmitParameters": "--conf spark.executor.instances=2 --conf spark.executor.memory=4G --conf spark.driver.memory=4G --conf spark.kubernetes.driver.request.cores=1 --conf spark.kubernetes.executor.request.cores=1 --jars local:///usr/share/aws/iceberg/lib/iceberg-spark3-runtime.jar"
-    }}' \
---configuration-overrides '{"applicationConfiguration": [
-      {
-        "classification": "spark-defaults",
-        "properties": {
-          "spark.sql.extensions": "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions",
-          "spark.sql.catalog.dev": "org.apache.iceberg.spark.SparkCatalog",
-          "spark.sql.catalog.dev.warehouse": "s3://'$S3_PRODUCER_BUCKET'/warehouse",
-          "spark.sql.catalog.dev.catalog-impl": "org.apache.iceberg.aws.glue.GlueCatalog",
-          "spark.sql.catalog.dev.io-impl": "org.apache.iceberg.aws.s3.S3FileIO",
-          "spark.sql.catalog.dev.client.region": "'$AWS_REGION'",
-          "spark.sql.defaultCatalog": "dev",
-          "spark.sql.catalog.dev.type": "glue",
-          "spark.sql.catalog.dev.glue.id": "'$CONSUMER_AWS_ACCOUNT'",
-          "spark.sql.catalog.dev.glue.account-id": "'$CONSUMER_AWS_ACCOUNT'"
+cat <<EOF >/tmp/submit-claims-job.sh
+  aws emr-containers start-job-run \
+  --virtual-cluster-id "$VCID" \
+  --name "claims_care_team_query" \
+  --execution-role-arn "arn:aws:iam::${CONSUMER_AWS_ACCOUNT}:role/$TEAM2_JOB_ROLE_NAME" \
+  --release-label emr-7.7.0-latest \
+  --job-driver '{    "sparkSubmitJobDriver": {
+        "entryPoint": "s3://$S3_TEST_BUCKET/jobs/cross-account-claims-job.py",
+        "sparkSubmitParameters": "--conf spark.executor.instances=2 --conf spark.executor.memory=4G --conf spark.driver.memory=4G --conf spark.kubernetes.driver.request.cores=1 --conf spark.kubernetes.executor.request.cores=1 --jars local:///usr/share/aws/iceberg/lib/iceberg-spark3-runtime.jar"
+      }}' \
+  --configuration-overrides '{"applicationConfiguration": [
+        {
+          "classification": "spark-defaults",
+          "properties": {
+            "spark.sql.extensions": "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions",
+            "spark.sql.catalog.dev": "org.apache.iceberg.spark.SparkCatalog",
+            "spark.sql.catalog.dev.warehouse": "s3://$S3_PRODUCER_BUCKET/warehouse",
+            "spark.sql.catalog.dev.catalog-impl": "org.apache.iceberg.aws.glue.GlueCatalog",
+            "spark.sql.catalog.dev.io-impl": "org.apache.iceberg.aws.s3.S3FileIO",
+            "spark.sql.catalog.dev.client.region": "$AWS_REGION",
+            "spark.sql.defaultCatalog": "dev",
+            "spark.sql.catalog.dev.type": "glue",
+            "spark.sql.catalog.dev.glue.id": "$CONSUMER_AWS_ACCOUNT",
+            "spark.sql.catalog.dev.glue.account-id": "$CONSUMER_AWS_ACCOUNT"
+          }
         }
-      }
-    ],
-     "monitoringConfiguration":
-      {
-        "persistentAppUI": "ENABLED",
-        "s3MonitoringConfiguration": {"logUri": "s3://'$S3_TEST_BUCKET'/spark-logs/"}
-      }
-    }'
+      ],
+      "monitoringConfiguration":
+        {
+          "persistentAppUI": "ENABLED",
+          "s3MonitoringConfiguration": {"logUri": "s3://$S3_TEST_BUCKET/spark-logs/"}
+        }
+      }'
+EOF
