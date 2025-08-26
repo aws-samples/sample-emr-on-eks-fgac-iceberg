@@ -102,7 +102,7 @@ EOL
 #     }]
 # }
 # EOL
-cat >/tmp/trust-policy.json <<EOL
+cat >/tmp/query-trust-policy.json <<EOL
 {
   "Version": "2012-10-17",
   "Statement": [ {
