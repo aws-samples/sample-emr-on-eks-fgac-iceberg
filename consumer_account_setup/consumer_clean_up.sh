@@ -127,6 +127,13 @@ aws iam detach-role-policy --role-name $TEAM1_JOB_ROLE_NAME --policy-arn $TEAM1_
 echo "Delete IAM role"
 aws iam delete-role --role-name $TEAM1_JOB_ROLE_NAME
 echo "Delete Policy"
+# List and delete all non-default versions
+aws iam list-policy-versions --policy-arn $TEAM1_JOB_POLICY_ARN --query 'Versions[?IsDefaultVersion==`false`].VersionId' --output text | \
+while read -r VERSION_ID; do
+    echo "Deleting version $VERSION_ID"
+    aws iam delete-policy-version --policy-arn $TEAM1_JOB_POLICY_ARN --version-id $VERSION_ID
+done
+# Delete the policy
 aws iam delete-policy --policy-arn $TEAM1_JOB_POLICY_ARN
 
 echo "delete EMR on EKS IAM Job execution role for Team 2!"
@@ -136,6 +143,13 @@ aws iam detach-role-policy --role-name $TEAM2_JOB_ROLE_NAME --policy-arn $TEAM2_
 echo "Delete IAM role"
 aws iam delete-role --role-name $TEAM2_JOB_ROLE_NAME
 echo "Delete Policy"
+# List and delete all non-default versions
+aws iam list-policy-versions --policy-arn $TEAM2_JOB_POLICY_ARN --query 'Versions[?IsDefaultVersion==`false`].VersionId' --output text | \
+while read -r VERSION_ID; do
+    echo "Deleting version $VERSION_ID"
+    aws iam delete-policy-version --policy-arn $TEAM2_JOB_POLICY_ARN --version-id $VERSION_ID
+done
+# Delete the policy
 aws iam delete-policy --policy-arn $TEAM2_JOB_POLICY_ARN
 
 echo "delete EMR on EKS IAM Query execution role!"
@@ -145,6 +159,13 @@ aws iam detach-role-policy --role-name $QUERY_ROLE_NAME --policy-arn $QUERY_POLI
 echo "Delete IAM role"
 aws iam delete-role --role-name $QUERY_ROLE_NAME
 echo "Delete Policy"
+# List and delete all non-default versions
+aws iam list-policy-versions --policy-arn $QUERY_POLICY_ARN --query 'Versions[?IsDefaultVersion==`false`].VersionId' --output text | \
+while read -r VERSION_ID; do
+    echo "Deleting version $VERSION_ID"
+    aws iam delete-policy-version --policy-arn $QUERY_POLICY_ARN --version-id $VERSION_ID
+done
+# Delete the policy
 aws iam delete-policy --policy-arn $QUERY_POLICY_ARN
 
 ################################################################################################

@@ -89,26 +89,17 @@ cat >/tmp/query-execution-policy.json <<EOL
 }
 EOL
 
-# cat >/tmp/query-trust-policy.json <<EOL
-# {
-#   "Version": "2012-10-17",
-#   "Statement": [
-#     {
-#       "Effect": "Allow",
-#       "Principal": {
-#           "AWS": "arn:aws:iam::${CONSUMER_AWS_ACCOUNT}:root"
-#       },
-#       "Action": "sts:AssumeRole"
-#     }]
-# }
-# EOL
 cat >/tmp/query-trust-policy.json <<EOL
 {
   "Version": "2012-10-17",
-  "Statement": [ {
+  "Statement": [
+    {
       "Effect": "Allow",
-      "Principal": { "Service": "eks.amazonaws.com" },
-      "Action": "sts:AssumeRole"
+      "Principal": {
+          "AWS": "arn:aws:iam::${CONSUMER_AWS_ACCOUNT}:root"
+      },
+      "Action": "sts:AssumeRole",
+      "Condition": {}
     }]
 }
 EOL
@@ -141,7 +132,8 @@ cat >/tmp/job-execution-policy.json <<EOL
             "Effect": "Allow",
             "Action": [
                 "lakeformation:GetDataAccess",
-                "glue:Get*",
+                "glue:GetTable",
+                "glue:GetCatalog",
                 "glue:Create*",
                 "glue:Update*"
             ],
@@ -157,7 +149,7 @@ cat >/tmp/job-execution-policy.json <<EOL
                 "s3:ListBucket"
             ],
             "Resource": [
-              "arn:aws:s3:::${S3_TEST_BUCKET}/*"
+              "arn:aws:s3:::${S3_TEST_BUCKET}*"
             ]
         }
     ]
@@ -205,16 +197,14 @@ done
  #     STEP 5 - Create EKS Cluster and RBAC permissions
 ###################################################################################
 echo "==============================================="
-echo "  Create EKS Cluster $EKSCLUSTER_NAME ......"
+echo "  Create an EKS Cluster $EKSCLUSTER_NAME with a static spot nodegroup......"
 echo "  If EKS cluster exists, skip this step"
 echo "==============================================="
 
 eksctl create cluster --name $EKSCLUSTER_NAME --region $AWS_REGION \
 --with-oidc \
---nodes 10 --nodes-min 10 --nodes-max 20 \
-
-# #This step creates an IAM OIDC provider for the EKS cluster that you just created and can enable to use AWS Identity and Access Management (IAM) roles for service accounts. Details: https://docs.aws.amazon.com/eks/latest/userguide/enable-iam-roles-for-service-accounts.html.
-# eksctl utils associate-iam-oidc-provider --cluster $EKSCLUSTER_NAME --approve
+--node-type m5.xlarge --spot \
+--nodes 3 --nodes-max 3
 
 aws eks update-kubeconfig --name $EKSCLUSTER_NAME --region $AWS_REGION
 
@@ -289,7 +279,9 @@ aws glue create-table \
 ###################################################################################
  #     STEP 7 - Setup Lake Formation Permissions for Job Execution Roles
 ###################################################################################
-echo "Allow both EMR-EKS job execution roles to describe consumer's local database and access the claims table"
+echo "====================================================================="
+echo "  Grant cross-account permissions for two job execution roles ......"
+echo "====================================================================="
 for role in $TEAM1_JOB_ROLE_NAME $TEAM2_JOB_ROLE_NAME; do
   aws lakeformation grant-permissions \
   --principal DataLakePrincipalIdentifier="arn:aws:iam::${CONSUMER_AWS_ACCOUNT}:role/$role"  \
@@ -309,7 +301,7 @@ for role in $TEAM1_JOB_ROLE_NAME $TEAM2_JOB_ROLE_NAME; do
       }
   }'
   aws lakeformation grant-permissions \
-  --principal DataLakePrincipalIdentifier="arn:aws:iam::${CONSUMER_AWS_ACCOUNT}:role/$$role"  \
+  --principal DataLakePrincipalIdentifier="arn:aws:iam::${CONSUMER_AWS_ACCOUNT}:role/$role"  \
   --permissions "SELECT" "DESCRIBE" \
   --resource '{
       "Table": {
@@ -320,7 +312,9 @@ for role in $TEAM1_JOB_ROLE_NAME $TEAM2_JOB_ROLE_NAME; do
   }'
 done
 
-echo "The patients table and its resource link are only accessible by team 1 job execution role"
+echo "====================================================================="
+echo "  Grant patients table access to team 1 job execution role only ......"
+echo "====================================================================="
 aws lakeformation grant-permissions \
   --principal DataLakePrincipalIdentifier="arn:aws:iam::${CONSUMER_AWS_ACCOUNT}:role/$TEAM1_JOB_ROLE_NAME"  \
   --permissions "DESCRIBE" \
@@ -344,8 +338,9 @@ aws lakeformation grant-permissions \
 #############################################################################################################
 #       STEP 8 - Create Security Configuration
 ###############################################################################################################
-
+echo "====================================================================="
 echo "To run a lf-enabled job, create a security configuration as a one-off step"
+echo "====================================================================="
 security_config_id=$(aws emr-containers create-security-configuration \
     --name "emr-on-eks-fgac-sec-conifg" \
     --security-configuration '{
@@ -360,7 +355,7 @@ security_config_id=$(aws emr-containers create-security-configuration \
             }
         }
     }'| jq '.id' -r)
-echo $security_config_id
+echo "security_config_id is $security_config_id"
 
 #############################################################################################################
 #       STEP 9 - Create EMR on EKS virtual cluster with a security configuration
@@ -382,7 +377,7 @@ export VCID=$(aws emr-containers list-virtual-clusters \
 --query 'virtualClusters[?name==`'$EMR_VC_NAME'` && state==`RUNNING`] | [0].id' \
 --output text)
 
-echo $VCID
+echo "EMR-EKS Virtual Cluster ID is $VCID"
 
 ################################################################################################################
 #       STEP 10 - Validate the fine-grained access control by running two PySpark jobs
@@ -431,7 +426,7 @@ cat <<EOF >/tmp/submit-patients-job.sh
   --release-label emr-7.7.0-latest \
   --job-driver '{    "sparkSubmitJobDriver": {
         "entryPoint": "s3://$S3_TEST_BUCKET/jobs/cross-account-patient-job.py",
-        "sparkSubmitParameters": "--conf spark.executor.instances=2 --conf spark.executor.memory=4G --conf spark.driver.memory=4G --conf spark.kubernetes.driver.request.cores=1 --conf spark.kubernetes.executor.request.cores=1 --jars local:///usr/share/aws/iceberg/lib/iceberg-spark3-runtime.jar"
+        "sparkSubmitParameters": "--conf spark.executor.cores=1 --conf spark.executor.memory=4G --jars local:///usr/share/aws/iceberg/lib/iceberg-spark3-runtime.jar"
       }}' \
   --configuration-overrides '{"applicationConfiguration": [
         {
@@ -446,7 +441,8 @@ cat <<EOF >/tmp/submit-patients-job.sh
             "spark.sql.defaultCatalog": "dev",
             "spark.sql.catalog.dev.type": "glue",
             "spark.sql.catalog.dev.glue.id": "$CONSUMER_AWS_ACCOUNT",
-            "spark.sql.catalog.dev.glue.account-id": "$CONSUMER_AWS_ACCOUNT"
+            "spark.sql.catalog.dev.glue.account-id": "$CONSUMER_AWS_ACCOUNT",
+            "spark.dynamicAllocation.maxExecutors": "2"
           }
         }
       ],
@@ -508,7 +504,7 @@ cat <<EOF >/tmp/submit-claims-job.sh
   --release-label emr-7.7.0-latest \
   --job-driver '{    "sparkSubmitJobDriver": {
         "entryPoint": "s3://$S3_TEST_BUCKET/jobs/cross-account-claims-job.py",
-        "sparkSubmitParameters": "--conf spark.executor.instances=2 --conf spark.executor.memory=4G --conf spark.driver.memory=4G --conf spark.kubernetes.driver.request.cores=1 --conf spark.kubernetes.executor.request.cores=1 --jars local:///usr/share/aws/iceberg/lib/iceberg-spark3-runtime.jar"
+        "sparkSubmitParameters": "--conf spark.executor.cores=1 --conf spark.executor.memory=4G --jars local:///usr/share/aws/iceberg/lib/iceberg-spark3-runtime.jar"
       }}' \
   --configuration-overrides '{"applicationConfiguration": [
         {
@@ -523,7 +519,8 @@ cat <<EOF >/tmp/submit-claims-job.sh
             "spark.sql.defaultCatalog": "dev",
             "spark.sql.catalog.dev.type": "glue",
             "spark.sql.catalog.dev.glue.id": "$CONSUMER_AWS_ACCOUNT",
-            "spark.sql.catalog.dev.glue.account-id": "$CONSUMER_AWS_ACCOUNT"
+            "spark.sql.catalog.dev.glue.account-id": "$CONSUMER_AWS_ACCOUNT",
+            "spark.dynamicAllocation.maxExecutors": "2"
           }
         }
       ],

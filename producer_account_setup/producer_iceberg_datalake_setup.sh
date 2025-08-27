@@ -1,7 +1,6 @@
 # export AWS_REGION=us-west-2
 # export PRODUCER_AWS_ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
 # export CONSUMER_AWS_ACCOUNT=123456789012
-# export ATHENA_RESULT_BUCKET=athena-results-$PRODUCER_AWS_ACCOUNT-$AWS_REGION
 
 export ENVIRONMENT=dev
 export DATABASE=healthcare_db
@@ -9,6 +8,7 @@ export patients=patients
 export claims=claims
 export S3_DATA_BUCKET=blog-emr-eks-fgac-data-$PRODUCER_AWS_ACCOUNT-$AWS_REGION-$ENVIRONMENT
 export DATA_ACCESS_IAM_ROLE=lf_data_access_execution_role
+export ATHENA_RESULT_BUCKET=athena-results-$PRODUCER_AWS_ACCOUNT-$AWS_REGION
 
 ####################################################################################
 #            Create S3 bucket for iceberg table data
@@ -68,7 +68,6 @@ cat >/tmp/FGAC_DataAccessRole_permission_policy.json <<EOL
             "Sid": "VisualEditor2",
             "Effect": "Allow",
             "Action": [
-                "s3:CreateObject",
                 "s3:PutObject",
                 "s3:GetObject",
                 "s3:DeleteObject"
@@ -210,7 +209,6 @@ VALUES
 --query-execution-context "Database=$DATABASE" \
 --result-configuration "OutputLocation=s3://$ATHENA_RESULT_BUCKET/"
 
-
 ###################################################################################
  #      Grant database permissions to Consumer account
 ###################################################################################
@@ -220,14 +218,14 @@ echo "==========================================================================
 
 aws lakeformation grant-permissions \
 --principal DataLakePrincipalIdentifier=${CONSUMER_AWS_ACCOUNT} \
---permissions DESCRIBE \
+--permissions "DESCRIBE" \
+--permissions-with-grant-option "DESCRIBE" \
 --resource '{
     "Database": {
         "Name": "'${DATABASE}'",
         "CatalogId": "'${PRODUCER_AWS_ACCOUNT}'"
     }
 }'
-
 
 ###################################################################################
 #       Create Column level filter on Patients table to Consumer account
@@ -251,27 +249,7 @@ cat >/tmp/patients_data_filter.json <<EOL
     }
 }
 EOL
-
-aws lakeformation create-data-cells-filter \
---cli-input-json file:///tmp/patients_data_filter.json
-
-###################################################################################
-#       Grant Database permissions to Consumer account
-###################################################################################
-echo "============================================================================="
-echo "  Grant Database permissions to Consumer account ......"
-echo "============================================================================="
-
-aws lakeformation grant-permissions \
---principal DataLakePrincipalIdentifier=${CONSUMER_AWS_ACCOUNT} \
---permissions "DESCRIBE" \
---permissions-with-grant-option "DESCRIBE" \
---resource '{
-    "Database": {
-        "Name": "'${DATABASE}'",
-        "CatalogId": "'${PRODUCER_AWS_ACCOUNT}'"
-    }
-}'
+aws lakeformation create-data-cells-filter --cli-input-json file:///tmp/patients_data_filter.json
 
 ###################################################################################
 #       Grant Column level filter on Patients table to Consumer account
