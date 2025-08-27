@@ -124,4 +124,11 @@ aws iam detach-role-policy --role-name $DATA_ACCESS_IAM_ROLE --policy-arn $DATA_
 echo "Delete IAM role"
 aws iam delete-role --role-name $DATA_ACCESS_IAM_ROLE
 echo "Delete Policy"
+# List and delete all non-default versions
+aws iam list-policy-versions --policy-arn $DATA_ACCESS_POLICY_ARN --query 'Versions[?IsDefaultVersion==`false`].VersionId' --output text | \
+while read -r VERSION_ID; do
+    echo "Deleting version $VERSION_ID"
+    aws iam delete-policy-version --policy-arn $DATA_ACCESS_POLICY_ARN --version-id $VERSION_ID
+done
+# Delete the policy
 aws iam delete-policy --policy-arn $DATA_ACCESS_POLICY_ARN
