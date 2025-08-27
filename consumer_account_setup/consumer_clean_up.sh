@@ -1,7 +1,9 @@
-export AWS_REGION=us-west-2
-export PRODUCER_AWS_ACCOUNT=999333222111
-export CONSUMER_AWS_ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
+# export AWS_REGION=us-west-2
+# export PRODUCER_AWS_ACCOUNT=999333222111
+# export EKSCLUSTER_NAME=fgac-blog
+
 export ENVIRONMENT=dev
+export CONSUMER_AWS_ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
 export PRODUCER_DATABASE=healthcare_db
 export CONSUMER_DATABASE=consumer_healthcare_db
 export rl_patients=rl_patients
@@ -10,11 +12,10 @@ export patients=patients
 export claims=claims
 export S3_TEST_BUCKET=blog-emr-eks-fgac-test-$CONSUMER_AWS_ACCOUNT-$AWS_REGION-$ENVIRONMENT
 
+export EMR_VC_NAME=emr-on-eks-$EKSCLUSTER_NAME
 export TEAM1_JOB_ROLE_NAME=emr_on_eks_fgac_job_team1_execution_role
 export TEAM2_JOB_ROLE_NAME=emr_on_eks_fgac_job_team2_execution_role
 export QUERY_ROLE_NAME=emr_on_eks_fgac_query_execution_role
-export EKSCLUSTER_NAME=emr-on-eks-fgac-blog
-export EMR_VC_NAME=emr-on-eks-vc
 
 ################################################################################################
 #       Revoke permissions to Consumer account EMR on EKS Job Execution IAM role
@@ -24,27 +25,18 @@ echo "==========================================================================
 echo "  Revoke original table permissions to Consumer account ......"
 echo "============================================================================="
 
-aws lakeformation revoke-permissions \
---principal DataLakePrincipalIdentifier=arn:aws:iam::$CONSUMER_AWS_ACCOUNT:role/${TEAM1_JOB_ROLE_NAME} \
---permissions "SELECT" \
---resource '{
-    "Table": {
-        "DatabaseName": "'${PRODUCER_DATABASE}'",
-        "Name": "'${patients}'",
-        "CatalogId": "'${PRODUCER_AWS_ACCOUNT}'"
-    }
-}'
-
-aws lakeformation revoke-permissions \
---principal DataLakePrincipalIdentifier=arn:aws:iam::$CONSUMER_AWS_ACCOUNT:role/${TEAM1_JOB_ROLE_NAME} \
---permissions "SELECT" "DESCRIBE" \
---resource '{
-    "Table": {
-        "DatabaseName": "'${PRODUCER_DATABASE}'",
-        "Name": "'${claims}'",
-        "CatalogId": "'${PRODUCER_AWS_ACCOUNT}'"
-    }
-}'
+for rbl in $patients $claims; do
+  aws lakeformation revoke-permissions \
+    --principal DataLakePrincipalIdentifier=arn:aws:iam::$CONSUMER_AWS_ACCOUNT:role/${TEAM1_JOB_ROLE_NAME} \
+    --permissions "SELECT" \
+    --resource '{
+        "Table": {
+            "DatabaseName": "'${PRODUCER_DATABASE}'",
+            "Name": "'${rbl}'",
+            "CatalogId": "'${PRODUCER_AWS_ACCOUNT}'"
+        }
+    }'
+done
 
 aws lakeformation revoke-permissions \
 --principal DataLakePrincipalIdentifier=arn:aws:iam::$CONSUMER_AWS_ACCOUNT:role/${TEAM2_JOB_ROLE_NAME} \
@@ -56,7 +48,6 @@ aws lakeformation revoke-permissions \
         "CatalogId": "'${PRODUCER_AWS_ACCOUNT}'"
     }
 }'
-
 
 ################################################################################################
 #       Revoke resource link permissions to EMR on EKS Job Execution IAM role
@@ -66,26 +57,19 @@ echo "==========================================================================
 echo "  Revoke resource link table permissions to Consumer account ......"
 echo "============================================================================="
 
-aws lakeformation revoke-permissions \
---principal DataLakePrincipalIdentifier=arn:aws:iam::$CONSUMER_AWS_ACCOUNT:role/${TEAM1_JOB_ROLE_NAME} \
---permissions "DESCRIBE" \
---resource '{
-    "Table": {
-        "DatabaseName": "'${CONSUMER_DATABASE}'",
-        "Name": "'${rl_patients}'",
-        "CatalogId": "'${CONSUMER_AWS_ACCOUNT}'"
-    }
-}'
-aws lakeformation revoke-permissions \
---principal DataLakePrincipalIdentifier=arn:aws:iam::$CONSUMER_AWS_ACCOUNT:role/${TEAM1_JOB_ROLE_NAME} \
---permissions "DESCRIBE" \
---resource '{
-    "Table": {
-        "DatabaseName": "'${CONSUMER_DATABASE}'",
-        "Name": "'${rl_claims}'",
-        "CatalogId": "'${CONSUMER_AWS_ACCOUNT}'"
-    }
-}'
+for rl in $rl_patients $rl_claims; do
+    aws lakeformation revoke-permissions \
+    --principal DataLakePrincipalIdentifier=arn:aws:iam::$CONSUMER_AWS_ACCOUNT:role/${TEAM1_JOB_ROLE_NAME} \
+    --permissions "DESCRIBE" \
+    --resource '{
+        "Table": {
+            "DatabaseName": "'${CONSUMER_DATABASE}'",
+            "Name": "'${rl}'",
+            "CatalogId": "'${CONSUMER_AWS_ACCOUNT}'"
+        }
+    }'
+done    
+
 aws lakeformation revoke-permissions \
 --principal DataLakePrincipalIdentifier=arn:aws:iam::$CONSUMER_AWS_ACCOUNT:role/${TEAM2_JOB_ROLE_NAME} \
 --permissions "DESCRIBE" \
@@ -98,28 +82,22 @@ aws lakeformation revoke-permissions \
 }'
 
 ################################################################################################
-#       Revoke Local Database permissions to EMR on EKS Job Execution IAM role
+#       Revoke Local Database permissions to EMR on EKS Job Execution IAM roles
 ################################################################################################
 
 echo "============================================================================="
 echo "  Revoke database permissions to EMR on EKS Job Execution IAM roles ......"
 echo "============================================================================="
-aws lakeformation revoke-permissions \
---principal DataLakePrincipalIdentifier=arn:aws:iam::$CONSUMER_AWS_ACCOUNT:role/${TEAM1_JOB_ROLE_NAME} \
---permissions "DESCRIBE" \
---resource '{
-    "Database": {
-        "Name": "'${CONSUMER_DATABASE}'"
-    }
-}'
-aws lakeformation revoke-permissions \
---principal DataLakePrincipalIdentifier=arn:aws:iam::$CONSUMER_AWS_ACCOUNT:role/${TEAM2_JOB_ROLE_NAME} \
---permissions "DESCRIBE" \
---resource '{
-    "Database": {
-        "Name": "'${CONSUMER_DATABASE}'"
-    }
-}'
+for role in $TEAM1_JOB_ROLE_NAME $TEAM2_JOB_ROLE_NAME; do
+    aws lakeformation revoke-permissions \
+    --principal DataLakePrincipalIdentifier=arn:aws:iam::$CONSUMER_AWS_ACCOUNT:role/${role} \
+    --permissions "DESCRIBE" \
+    --resource '{
+        "Database": {
+            "Name": "'${CONSUMER_DATABASE}'"
+        }
+    }'
+done
 
 ################################################################################################
 #                      Delete Resource link to Glue table
@@ -128,8 +106,7 @@ aws lakeformation revoke-permissions \
 echo "============================================================================="
 echo "  Drop Glue tables ......"
 echo "============================================================================="
-aws glue batch-delete-table \
---database-name $CONSUMER_DATABASE \
+aws glue batch-delete-table --database-name $CONSUMER_DATABASE \
 --tables-to-delete $rl_patients $rl_claims
 
 ##################################################################################################
@@ -138,8 +115,7 @@ aws glue batch-delete-table \
 echo "============================================================================="
 echo "  Delete Cross-account HealthCare Database ......"
 echo "============================================================================="
-aws glue delete-database \
---name $CONSUMER_DATABASE
+aws glue delete-database --name $CONSUMER_DATABASE
 
 ################################################################################################
 #                  Delete IAM roles and policies

@@ -1,9 +1,9 @@
-export AWS_REGION=us-west-2
-export PRODUCER_AWS_ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
-export CONSUMER_AWS_ACCOUNT=123456789012
-export ENVIRONMENT=dev
+# export AWS_REGION=us-west-2
+# export PRODUCER_AWS_ACCOUNT=$(aws sts get-caller-identity --query Account --output text)
+# export CONSUMER_AWS_ACCOUNT=123456789012
 
-export database=healthcare_db
+export ENVIRONMENT=dev
+export DATABASE=healthcare_db
 export patients=patients
 export claims=claims
 export S3_DATA_BUCKET=blog-emr-eks-fgac-data-$PRODUCER_AWS_ACCOUNT-$AWS_REGION-$ENVIRONMENT
@@ -21,7 +21,7 @@ aws lakeformation revoke-permissions \
 --permissions-with-grant-option "SELECT" "DESCRIBE" \
 --resource '{
     "Table": {
-        "DatabaseName": "'${database}'",
+        "DatabaseName": "'${DATABASE}'",
         "Name": "'${claims}'",
         "CatalogId": "'${PRODUCER_AWS_ACCOUNT}'"
     }
@@ -40,7 +40,7 @@ aws lakeformation revoke-permissions \
 --resource '{
     "DataCellsFilter": {
         "TableCatalogId" : "'${PRODUCER_AWS_ACCOUNT}'",
-        "DatabaseName": "'${database}'",
+        "DatabaseName": "'${DATABASE}'",
         "TableName": "'${patients}'",
         "Name": "patients_column_row_filter"
     }
@@ -69,7 +69,7 @@ aws lakeformation revoke-permissions \
 --permissions "DESCRIBE" \
 --resource '{
     "Database": {
-        "Name": "'${database}'",
+        "Name": "'${DATABASE}'",
         "CatalogId": "'${PRODUCER_AWS_ACCOUNT}'"
     }
 }'
@@ -90,8 +90,8 @@ echo "==========================================================================
 echo "  Drop Glue tables ......"
 echo "============================================================================="
 aws glue batch-delete-table \
---database-name $database \
---tables-to-delete $table1 $table2
+--database-name $DATABASE \
+--tables-to-delete $patients $claims
 
 ###################################################################################
 #                            Delete HealthCare Database
@@ -100,7 +100,7 @@ echo "==========================================================================
 echo "  Delete HealthCare Database ......"
 echo "============================================================================="
 aws glue delete-database \
---name $database
+--name $DATABASE
 
 ###################################################################################
 #                            Delete S3 data and S3 bucket
