@@ -17,7 +17,7 @@ echo "==========================================================================
 echo "  Create S3 bucket for iceberg table data ......"
 echo "============================================================================="
 
-if [ $AWS_REGION -eq "us-east-1" ]
+if [[ $AWS_REGION == us-east-1 ]]
 then
   echo "setup data bucket in us-east-1 region......"
   aws s3api create-bucket --bucket $S3_DATA_BUCKET --region $AWS_REGION

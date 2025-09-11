@@ -36,7 +36,7 @@ aws glue create-database \
 ###################################################################################
 
 # create S3 bucket for application
-if [ $AWS_REGION -eq "us-east-1" ]
+if [[ $AWS_REGION == us-east-1 ]]
 then
   echo "setup data bucket in us-east-1 region......"
   aws s3api create-bucket --bucket $S3_TEST_BUCKET --region $AWS_REGION
